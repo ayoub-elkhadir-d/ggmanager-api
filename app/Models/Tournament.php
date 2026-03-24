@@ -26,25 +26,19 @@ class Tournament extends Model
         'max_participants' => 'integer',
     ];
 
-    /**
-     * Get the organizer of the tournament.
-     */
+
     public function organizer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'organizer_id');
     }
 
-    /**
-     * Get the registrations for this tournament.
-     */
+
     public function registrations(): HasMany
     {
         return $this->hasMany(Registration::class);
     }
 
-    /**
-     * Get the matches connected to this tournament.
-     */
+
     public function matches(): HasMany
     {
         return $this->hasMany(GameMatch::class);

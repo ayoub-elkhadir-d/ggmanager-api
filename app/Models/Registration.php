@@ -10,11 +10,6 @@ class Registration extends Model
 {
     use HasFactory;
 
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
     public $timestamps = false;
 
     protected $fillable = [
@@ -27,17 +22,13 @@ class Registration extends Model
         'registered_at' => 'datetime',
     ];
 
-    /**
-     * Get the user who registered.
-     */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the tournament they registered for.
-     */
+
     public function tournament(): BelongsTo
     {
         return $this->belongsTo(Tournament::class);
