@@ -4,7 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TournamentController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\Api\BracketController;
 use App\Http\Controllers\MatchController;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -30,3 +32,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/tournaments', [TournamentController::class, 'index']);
 Route::get('/tournaments/{tournament}', [TournamentController::class, 'show']);
+Route::get('/tournaments/{id}/bracket', [BracketController::class, 'show'])->name('tournaments.bracket');
