@@ -20,7 +20,6 @@ return new class extends Migration {
 
             $table->integer('max_participants');
 
-            $table->string('format')->default('single_elimination');
 
             $table->enum('status', [
                 'open',
