@@ -17,7 +17,6 @@ class Tournament extends Model
         'game',
         'date',
         'max_participants',
-        'format',
         'status',
     ];
 
