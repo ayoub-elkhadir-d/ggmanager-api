@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TournamentController;
@@ -17,9 +16,7 @@ Route::get('/tournaments/{tournament}', [TournamentController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [AuthController::class, 'me']);
 
     Route::post('/tournaments', [TournamentController::class, 'store']);
     Route::put('/tournaments/{tournament}', [TournamentController::class, 'update']);

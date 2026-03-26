@@ -13,16 +13,15 @@ class StatusController extends Controller
         $user = $request->user();
 
         if ($user->cannot('update', $tournament)) {
-            return response()->json(['message' => 'You are not allowed to do this.'], 403);
+            return $this->forbidden('You are not allowed to do this.');
         }
 
-        if ($tournament->status !== 'open')
-            return response()->json(['message' => 'Only open tournaments can be closed.'], 400);
+        if ($tournament->status !== 'open') {
+            return $this->error('Only open tournaments can be closed.', 400);
+        }
 
         $tournament->update(['status' => 'closed']);
 
-        GenerateBracketJob::dispatch($tournament);
-
-        return response()->json(['message' => 'Tournament has been closed successfully.'], 200);
+        return $this->success(null, 'Tournament has been closed successfully.');
     }
 }

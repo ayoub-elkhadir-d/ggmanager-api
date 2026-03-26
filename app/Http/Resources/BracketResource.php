@@ -10,7 +10,7 @@ class BracketResource extends JsonResource
     public function toArray(Request $request): array
     {
         $rounds = $this->matches
-            ->sortBy(['round_number', 'match_order'])
+            ->sortBy(['round_number', 'match_position'])
             ->groupBy('round_number')
             ->map(fn($matches, $roundNumber) => [
                 'round'   => (int) $roundNumber,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TournamentResource;
 use App\Models\Tournament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +14,7 @@ class TournamentController extends Controller
     public function index()
     {
         $tournaments = Tournament::with('organizer:id,name')->get();
-        return response()->json($tournaments);
+        return $this->success(TournamentResource::collection($tournaments));
     }
 
 
@@ -27,7 +28,7 @@ class TournamentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
 
         $tournament = Tournament::create([
@@ -39,25 +40,34 @@ class TournamentController extends Controller
             'status' => 'open',
         ]);
 
-        return response()->json($tournament, 201);
+        $tournament->load('organizer:id,name');
+
+        return $this->success(new TournamentResource($tournament), 'Tournament created', 201);
     }
 
 
     public function show(Tournament $tournament)
     {
-        $tournament->load(['organizer:id,name', 'registrations.user:id,name', 'matches']);
-        return response()->json($tournament);
+        $tournament->load([
+            'organizer:id,name',
+            'registrations.user:id,name',
+            'matches.player1:id,name',
+            'matches.player2:id,name',
+            'matches.winner:id,name',
+        ]);
+
+        return $this->success(new TournamentResource($tournament));
     }
 
 
     public function update(Request $request, Tournament $tournament)
     {
         if ($tournament->organizer_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->forbidden('Unauthorized');
         }
 
         if ($this->hasMatchesStarted($tournament)) {
-            return response()->json(['message' => 'Cannot modify a tournament if matches have started'], 403);
+            return $this->forbidden('Cannot modify a tournament if matches have started');
         }
 
         $validator = Validator::make($request->all(), [
@@ -69,30 +79,36 @@ class TournamentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
 
         $tournament->update($request->only([
-            'name', 'game', 'date', 'max_participants', 'status'
+            'name',
+            'game',
+            'date',
+            'max_participants',
+            'status'
         ]));
 
-        return response()->json($tournament);
+        $tournament->load('organizer:id,name');
+
+        return $this->success(new TournamentResource($tournament), 'Tournament updated');
     }
 
 
     public function destroy(Tournament $tournament)
     {
         if ($tournament->organizer_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->forbidden('Unauthorized');
         }
 
         if ($this->hasMatchesStarted($tournament)) {
-            return response()->json(['message' => 'Cannot delete a tournament if matches have started'], 403);
+            return $this->forbidden('Cannot delete a tournament if matches have started');
         }
 
         $tournament->delete();
 
-        return response()->json(null, 204);
+        return $this->success(null, 'Tournament deleted');
     }
 
 
@@ -103,7 +119,7 @@ class TournamentController extends Controller
         }
 
         $hasActiveMatches = $tournament->matches()->whereIn('status', ['in_progress', 'finished'])->exists();
-        
+
         return $hasActiveMatches;
     }
 }
