@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MatchResource;
 use App\Models\GameMatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +12,7 @@ class MatchController extends Controller
     public function submitScore(Request $request, GameMatch $match)
     {
         if ($match->status === 'finished') {
-            return response()->json(['message' => 'Match already finished'], 409);
+            return $this->conflict('Match already finished');
         }
 
         $request->validate([
@@ -23,7 +24,10 @@ class MatchController extends Controller
         $winnerId = $request->winner_id;
 
         if ($request->player1_score === $request->player2_score) {
-            return response()->json(['message' => 'Scores must be distinct to determine a winner'], 422);
+            return $this->validationError([
+                'player1_score' => ['Scores must be distinct to determine a winner'],
+                'player2_score' => ['Scores must be distinct to determine a winner'],
+            ], 'Scores must be distinct to determine a winner');
         }
 
         DB::transaction(function () use ($match, $request, $winnerId) {
@@ -47,6 +51,12 @@ class MatchController extends Controller
             }
         });
 
-        return response()->json($match->fresh());
+        $match = $match->fresh()->load([
+            'player1:id,name',
+            'player2:id,name',
+            'winner:id,name',
+        ]);
+
+        return $this->success(new MatchResource($match), 'Score submitted');
     }
 }
