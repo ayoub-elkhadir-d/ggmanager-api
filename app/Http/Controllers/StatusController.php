@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tournament;
+use App\Jobs\GenerateBracketJob;
 use Illuminate\Http\Request;
 
 class StatusController extends Controller

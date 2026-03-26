@@ -10,23 +10,19 @@ use App\Http\Controllers\MatchController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/tournaments', [TournamentController::class, 'index']);
+Route::get('/tournaments/{tournament}', [TournamentController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'me']);
 
-    Route::middleware('role:organizer')->group(function () {
-        Route::post('/tournaments', [TournamentController::class, 'store']);
-        Route::put('/tournaments/{tournament}', [TournamentController::class, 'update']);
-        Route::delete('/tournaments/{tournament}', [TournamentController::class, 'destroy']);
-    });
-
-    Route::middleware('role:player')->group(function () {});
+    Route::post('/tournaments', [TournamentController::class, 'store']);
+    Route::put('/tournaments/{tournament}', [TournamentController::class, 'update']);
+    Route::delete('/tournaments/{tournament}', [TournamentController::class, 'destroy']);
 
     Route::post('/tournaments/{tournament}/register', [RegistrationController::class, 'store']);
     Route::post('/tournaments/{tournament}/close', [StatusController::class, 'close']);
     Route::post('/matches/{match}/score', [MatchController::class, 'submitScore']);
 });
-
-Route::get('/tournaments', [TournamentController::class, 'index']);
-Route::get('/tournaments/{tournament}', [TournamentController::class, 'show']);
-Route::get('/tournaments/{id}/bracket', [BracketController::class, 'show'])->name('tournaments.bracket');
