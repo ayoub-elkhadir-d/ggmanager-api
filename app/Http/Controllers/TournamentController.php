@@ -24,7 +24,6 @@ class TournamentController extends Controller
             'game' => 'required|string|max:255',
             'date' => 'required|date',
             'max_participants' => 'required|integer|min:2',
-            'format' => 'string|in:single_elimination,round_robin',
         ]);
 
         if ($validator->fails()) {
@@ -37,7 +36,6 @@ class TournamentController extends Controller
             'game' => $request->game,
             'date' => $request->date,
             'max_participants' => $request->max_participants,
-            'format' => $request->format ?? 'single_elimination',
             'status' => 'open',
         ]);
 
@@ -67,7 +65,6 @@ class TournamentController extends Controller
             'game' => 'sometimes|string|max:255',
             'date' => 'sometimes|date',
             'max_participants' => 'sometimes|integer|min:2',
-            'format' => 'sometimes|string|in:single_elimination,round_robin',
             'status' => 'sometimes|string|in:open,closed',
         ]);
 
@@ -76,7 +73,7 @@ class TournamentController extends Controller
         }
 
         $tournament->update($request->only([
-            'name', 'game', 'date', 'max_participants', 'format', 'status'
+            'name', 'game', 'date', 'max_participants', 'status'
         ]));
 
         return response()->json($tournament);
