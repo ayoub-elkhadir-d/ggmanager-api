@@ -6,37 +6,34 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BracketResource;
 use App\Models\Tournament;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class BracketController extends Controller
 {
-
     public function show(int $id): JsonResponse
     {
         $tournament = Tournament::query()
             ->with([
                 'matches' => fn($q) => $q
                     ->orderBy('round_number')
-                    ->orderBy('match_order'),
+                    ->orderBy('match_position'),
 
-                'matches.player1:id,name,username',
-                'matches.player2:id,name,username',
-                'matches.winner:id,name,username',
+                'matches.player1:id,name',
+                'matches.player2:id,name',
+                'matches.winner:id,name',
             ])
             ->findOrFail($id);
 
         if ($tournament->status === 'open') {
-            return response()->json([
-                'message' => 'Le bracket n\'a pas encore été généré. Les inscriptions sont toujours ouvertes.',
-            ], 422);
+            return $this->validationError(
+                ['status' => ['Le bracket n\'a pas encore été généré. Les inscriptions sont toujours ouvertes.']],
+                'Le bracket n\'a pas encore été généré. Les inscriptions sont toujours ouvertes.'
+            );
         }
 
         if ($tournament->matches->isEmpty()) {
-            return response()->json([
-                'message' => 'Aucun match trouvé pour ce tournoi.',
-            ], 404);
+            return $this->notFound('Aucun match trouvé pour ce tournoi.');
         }
 
-        return response()->json(new BracketResource($tournament));
+        return $this->success(new BracketResource($tournament));
     }
 }
