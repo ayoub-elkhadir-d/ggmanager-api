@@ -9,6 +9,25 @@ use Illuminate\Support\Facades\DB;
 
 class MatchController extends Controller
 {
+    public function store(Request $request)
+    {
+        $request->validate([
+            'tournament_id'   => 'required|integer|exists:tournaments,id',
+            'round_number'    => 'required|integer|min:1',
+            'match_position'  => 'required|integer|min:1',
+            'player1_id'      => 'nullable|integer|exists:users,id',
+            'player2_id'      => 'nullable|integer|exists:users,id',
+            'next_match_id'   => 'nullable|integer|exists:matches,id',
+        ]);
+
+        $match = GameMatch::create($request->only([
+            'tournament_id', 'round_number', 'match_position',
+            'player1_id', 'player2_id', 'next_match_id',
+        ]));
+
+        return response()->json($match, 201);
+    }
+
     public function submitScore(Request $request, GameMatch $match)
     {
         if ($match->status === 'finished') {

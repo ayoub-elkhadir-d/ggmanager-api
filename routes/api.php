@@ -23,5 +23,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/tournaments/{tournament}/register', [RegistrationController::class, 'store']);
     Route::post('/tournaments/{tournament}/close', [StatusController::class, 'close']);
+    Route::post('/matches', [MatchController::class, 'store']);
     Route::post('/matches/{match}/score', [MatchController::class, 'submitScore']);
 });
