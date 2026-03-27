@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ScoreUpdated;
 use App\Http\Resources\MatchResource;
 use App\Models\GameMatch;
 use Illuminate\Http\Request;
@@ -56,6 +57,8 @@ class MatchController extends Controller
             'player2:id,name',
             'winner:id,name',
         ]);
+
+        broadcast(new ScoreUpdated($match))->toOthers();
 
         return $this->success(new MatchResource($match), 'Score submitted');
     }
