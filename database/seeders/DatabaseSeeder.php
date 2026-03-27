@@ -47,8 +47,7 @@ class DatabaseSeeder extends Seeder
             'game' => 'League of Legends',
             'date' => now()->addDays(14),
             'max_participants' => 16,
-            'format' => 'single_elimination',
-            'status' => 'upcoming',
+            'status' => 'open',
         ]);
 
         Tournament::create([
@@ -57,8 +56,7 @@ class DatabaseSeeder extends Seeder
             'game' => 'Valorant',
             'date' => now()->addDays(30),
             'max_participants' => 32,
-            'format' => 'groups',
-            'status' => 'upcoming',
+            'status' => 'open',
         ]);
         
         $this->command->info('Database seeded successfully with Organizer, Players, and Tournaments!');
