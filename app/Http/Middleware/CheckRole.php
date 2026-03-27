@@ -12,7 +12,12 @@ class CheckRole
     {
         if (!$request->user() || $request->user()->role !== $role) {
             return response()->json([
-                'message' => 'Unauthorized action. Invalid role.'
+                'success' => false,
+                'message' => 'Unauthorized action. Invalid role.',
+                'data' => null,
+                'errors' => [
+                    'role' => ['Unauthorized action. Invalid role.'],
+                ],
             ], 403);
         }
 

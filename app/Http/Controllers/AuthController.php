@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -26,12 +27,11 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Utilisateur créé avec succès',
-            'user' => $user,
+        return $this->success([
+            'user' => (new UserResource($user))->includePrivate(),
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ], 201);
+        ], 'Utilisateur créé avec succès', 201);
     }
 
     public function login(Request $request)
@@ -44,27 +44,27 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Les identifiants sont incorrects.'
-            ], 401);
+            return $this->unauthorized('Les identifiants sont incorrects.');
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Connexion réussie',
-            'user' => $user,
+        return $this->success([
+            'user' => (new UserResource($user))->includePrivate(),
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ], 200);
+        ], 'Connexion réussie');
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'message' => 'Déconnexion réussie'
-        ], 200);
+        return $this->success(null, 'Déconnexion réussie');
+    }
+
+    public function me(Request $request)
+    {
+        return $this->success((new UserResource($request->user()))->includePrivate());
     }
 }
